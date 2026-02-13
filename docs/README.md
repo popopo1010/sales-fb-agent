@@ -18,6 +18,7 @@
 | [12-production-checklist.md](12-production-checklist.md) | 本番チェックリスト |
 | [13-slack-deployment-guide.md](13-slack-deployment-guide.md) | **Slack連携（/fb 全員利用）** |
 | [16-railway-deploy.md](16-railway-deploy.md) | **Railway デプロイ（push で自動デプロイ）** |
+| [17-github-setup.md](17-github-setup.md) | **GitHub 連携（リモート追加・push）** |
 | [14-member-quickstart.md](14-member-quickstart.md) | **メンバー向け使い方（シェア用）** |
 | [07-deployment-design.md](07-deployment-design.md) | デプロイ設計 |
 

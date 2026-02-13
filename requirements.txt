@@ -1,0 +1,8 @@
+# 営業FBエージェント 依存関係
+openai>=1.0.0
+slack-sdk>=3.0.0
+slack-bolt>=1.18.0
+python-dotenv>=1.0.0
+
+# Anthropic を使う場合（OpenAI の代わり）
+anthropic>=0.18.0

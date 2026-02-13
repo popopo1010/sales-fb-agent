@@ -1,0 +1,35 @@
+# 環境・秘密情報
+.env
+*.pem
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# データ（機密の書き起こし・FB）
+data/transcripts/raw/*
+!data/transcripts/raw/.gitkeep
+data/feedback/*
+!data/feedback/.gitkeep
+data/examples/*
+!data/examples/.gitkeep
+
+# ログ
+logs/*
+!logs/.gitkeep
+
+# IDE・OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 参照ドキュメント（機密の場合）
+# reference/pss/*.pdf
+# reference/operations/*.md

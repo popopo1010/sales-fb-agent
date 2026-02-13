@@ -4,12 +4,12 @@
 
 | 方式 | 概要 | 想定ユース |
 |------|------|------------|
-| **ローカル実行** | 開発マシンでCLI実行 | 開発・小規模利用 |
-| **Cron / タスクスケジューラ** | 定期実行・手動起動 | 中規模・社内利用 |
-| **サーバーレス (Lambda / Cloud Functions)** | イベント駆動 | 大規模・自動化 |
-| **コンテナ (Docker)** | 可搬性の高い実行環境 | 複数環境・CI |
+| **ローカル実行** | 開発マシンでCLI/Slackアプリ実行 | 開発・テスト |
+| **Railway** | Git push で自動デプロイ | 全員が /fb 利用（推奨） |
+| **Xserver / 自宅PC** | 共有サーバー or 自宅で常駐 | コスト最小 |
+| **Cron / タスクスケジューラ** | 定期実行・手動起動 | ファイル一括処理（要 --input-dir 実装） |
 
-本プロジェクトでは、まず **ローカル + Cron** を想定し、必要に応じて拡張する。
+本プロジェクトでは **ローカル + Railway** を推奨。Slack /fb は Socket Mode で常時接続が必要。
 
 ---
 
@@ -19,8 +19,8 @@
 
 ```bash
 cd sales-fb-agent
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
 # .env を編集してAPIキー・Slackトークンを設定
@@ -29,32 +29,29 @@ cp .env.example .env
 ### 2.2 実行方法
 
 ```bash
-# 単体実行
-python src/main.py --input data/transcripts/sample.txt
+# CLI: 単体実行
+python src/main.py data/transcripts/raw/書き起こし.txt
 
-# 一括実行
-python src/main.py --input-dir data/transcripts/
+# 出力のみ
+python src/main.py -o data/transcripts/raw/書き起こし.txt
+
+# Slack 送信せず data/feedback/ に保存
+python src/main.py --no-slack data/transcripts/raw/書き起こし.txt
+
+# Slack /fb コマンド用（常時起動）
+python -m src.slack_app
 ```
+
+※ 一括実行（--input-dir）は未実装。
 
 ---
 
-## 3. Cron による定期実行（オプション）
+## 3. Railway デプロイ（Slack /fb 全員利用）
 
-### 3.1 概要
+Git push で自動デプロイ。詳細は [docs/16-railway-deploy.md](16-railway-deploy.md)。
 
-指定ディレクトリに新しい書き起こしが配置されたら処理する、または日次で一括処理する。
-
-### 3.2 crontab 例
-
-```cron
-# 毎日 9:00 に data/transcripts/ 内の未処理ファイルを処理
-0 9 * * * cd /path/to/sales-fb-agent && ./venv/bin/python src/main.py --input-dir data/transcripts/ >> logs/cron.log 2>&1
-```
-
-### 3.3 前提
-
-- 書き起こし配置のルール（例: `processed/` に移動して重複防止）を決めておく
-- ログディレクトリ `logs/` を作成しておく
+- **Start Command**: `python -m src.slack_app`
+- **Variables**: SLACK_BOT_TOKEN, SLACK_APP_TOKEN, SLACK_SIGNING_SECRET, ANTHROPIC_API_KEY
 
 ---
 
@@ -62,36 +59,31 @@ python src/main.py --input-dir data/transcripts/
 
 | 変数名 | 必須 | 説明 |
 |--------|------|------|
-| `OPENAI_API_KEY` | いずれか | OpenAI API キー |
 | `ANTHROPIC_API_KEY` | いずれか | Anthropic API キー |
-| `SLACK_BOT_TOKEN` | 必須 | Slack Bot OAuth Token |
-| `SLACK_CHANNEL` | いずれか | 送信先チャンネル（例: #sales-fb） |
-| `SLACK_USER_ID` | いずれか | DM送信先ユーザーID |
+| `OPENAI_API_KEY` | いずれか | OpenAI API キー |
+| `SLACK_WEBHOOK_URL` | CLI用 | Incoming Webhook（#dk_ca_fb） |
+| `SLACK_BOT_TOKEN` | /fb用 | Bot OAuth Token (xoxb-...) |
+| `SLACK_APP_TOKEN` | /fb用 | App-Level Token (xapp-...) Socket Mode |
+| `SLACK_SIGNING_SECRET` | /fb用 | Signing Secret |
+| `SLACK_CHANNEL` | いずれか | 送信先（例: #dk_ca_fb） |
 
 ---
 
 ## 5. セキュリティ
 
-- `.env` は `.gitignore` に追加
-- APIキー・トークンは環境変数のみで管理（コードにハードコードしない）
+- `.env` は `.gitignore` に追加済み
+- APIキー・トークンは環境変数のみで管理
 - 書き起こしは社内ネットワーク内で扱う
 
 ---
 
-## 6. 将来の拡張（サーバーレス）
+## 6. デプロイチェックリスト
 
-- S3 に書き起こしが配置されたら Lambda を起動
-- Lambda 内で FB 生成 → Slack 送信
-- VPC 内で実行する場合は NAT 経由で API 呼び出し
-
----
-
-## 7. デプロイチェックリスト
-
-- [ ] Python 仮想環境の構築
-- [ ] requirements.txt のインストール
-- [ ] .env の設定（APIキー・Slackトークン）
-- [ ] reference/pss/ に PSSマニュアルを格納
-- [ ] reference/operations/ にオペレーションマニュアルを格納
-- [ ] サンプル書き起こしでE2Eテスト
-- [ ] Slack 送信先の確認
+- [x] Python 仮想環境の構築
+- [x] requirements.txt のインストール
+- [x] .env の設定（APIキー・Slackトークン）
+- [x] reference/pss/ に PSSマニュアルを格納
+- [x] reference/operations/ にオペレーションマニュアルを格納
+- [x] サンプル書き起こしでE2Eテスト
+- [x] Slack 送信先の確認
+- [ ] Railway 等へのデプロイ（任意）

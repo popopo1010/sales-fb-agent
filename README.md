@@ -59,6 +59,8 @@ python scripts/diagnose_api.py    # API診断
 | `SLACK_WEBHOOK_URL` | Incoming Webhook（#dk_ca_fb） |
 | `ANTHROPIC_MODEL` | 省略可。デフォルト: claude-sonnet-4-20250514 |
 
+**Slack /fb コマンド用（追加）**: `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`, `SLACK_SIGNING_SECRET`
+
 ## ディレクトリ構成
 
 ```
@@ -87,4 +89,6 @@ python -m src.slack_app
 
 - [使い方ガイド](docs/11-usage-guide.md)
 - [Slack連携（全員利用）](docs/13-slack-deployment-guide.md)
+- [Railway デプロイ](docs/16-railway-deploy.md)
+- [GitHub 連携](docs/17-github-setup.md)
 - [本番チェックリスト](docs/12-production-checklist.md)

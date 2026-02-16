@@ -2,8 +2,8 @@
 """
 営業FBエージェント - Slackアプリ
 
-Slack で /fb と入力するとモーダルが開き、書き起こしを貼り付けて送信すると
-FBを生成して #dk_ca_fb に投稿する。
+Slack で /fb と入力するとモーダルが開く。候補者名（任意）と書き起こしを入力して送信すると、
+担当者へのメンション＋候補者名付きでFBを生成し #dk_ca_初回面談fb に投稿する。
 
 使い方:
   python -m src.slack_app
@@ -13,10 +13,11 @@ FBを生成して #dk_ca_fb に投稿する。
   SLACK_SIGNING_SECRET   - Signing Secret
   SLACK_APP_TOKEN        - Socket Mode 用 (xapp-...)
   ANTHROPIC_API_KEY または OPENAI_API_KEY
-  SLACK_CHANNEL          - FB送信先 (デフォルト: #dk_ca_fb)
+  SLACK_CHANNEL          - FB送信先 (デフォルト: C0AELMP88Q6)
 """
 
 import os
+import re
 import sys
 import threading
 from pathlib import Path
@@ -35,6 +36,11 @@ from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 
+def _escape_mrkdwn(text: str) -> str:
+    """mrkdwnで < > & をエスケープ（改行は維持）"""
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
 def _create_app() -> App:
     """App インスタンスを生成（環境変数チェック付き）"""
     token = os.environ.get("SLACK_BOT_TOKEN")
@@ -50,10 +56,11 @@ def _run_fb_generation_and_post(
     transcript: str,
     channel_id: str,
     user_id: str,
+    candidate_name: str = "",
 ) -> None:
     """FB生成してSlackに投稿（バックグラウンド実行）"""
     from src.agent.generator import build_prompt, generate_feedback
-    from src.slack.sender import _format_feedback_for_slack, _markdown_to_plain
+    from src.slack.sender import _format_feedback_for_slack, _markdown_to_plain, _force_line_breaks
 
     token = os.environ.get("SLACK_BOT_TOKEN")
     client = __import__("slack_sdk").WebClient(token=token)
@@ -64,17 +71,53 @@ def _run_fb_generation_and_post(
 
         formatted = _format_feedback_for_slack(feedback)
         plain_text = _markdown_to_plain(formatted)
+        plain_text = _force_line_breaks(plain_text)
 
-        # #dk_ca_fb に投稿
-        channel = os.environ.get("SLACK_CHANNEL", "#dk_ca_fb")
-        client.chat_postMessage(channel=channel, text=plain_text)
+        # ヘッダー: CAメンション + 候補者名（blocksのmrkdwnでメンションを有効化）
+        header_parts = [f"<@{user_id}>"]
+        if candidate_name:
+            header_parts.append(f"候補者: {candidate_name}")
+        header_mrkdwn = " ".join(header_parts)
 
-        # 元のチャンネルに完了通知（ephemeral）
+        # FB送信先に投稿（blocksでメンションを確実に有効化）
+        channel = (os.environ.get("SLACK_CHANNEL") or "C0AELMP88Q6").strip()
+        if not channel:
+            raise ValueError("SLACK_CHANNEL が .env に設定されていません。チャンネルID（例: C0AELMP88Q6）を設定してください。")
+        full_text = header_mrkdwn + "\n\n" + plain_text  # 通知用フォールバック
+
+        blocks = [
+            {"type": "section", "text": {"type": "mrkdwn", "text": header_mrkdwn}},
+        ]
+        # FB本文を項目ごとに分割し、区切り線で視認性向上（Slack 3000文字/block制限あり）
+        sections = re.split(r"\n\n+(?=\d+\.\s*)", plain_text)
+        chunk_size = 2900
+        content_blocks_added = False
+        for i, section in enumerate(sections):
+            section = section.strip()
+            if not section:
+                continue
+            content_blocks_added = True
+            # 長い項目は文字数で分割（mrkdwn使用＝改行が反映される。plain_textは改行非対応）
+            for j in range(0, len(section), chunk_size):
+                chunk = section[j : j + chunk_size]
+                blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": _escape_mrkdwn(chunk)}})
+            # 項目間に区切り線を追加（最後の項目の後は不要）
+            if i < len(sections) - 1:
+                blocks.append({"type": "divider"})
+        # フォールバック: セクション分割で本文が入らなかった場合は全文を1ブロックで
+        if not content_blocks_added and plain_text:
+            for j in range(0, len(plain_text), chunk_size):
+                chunk = plain_text[j : j + chunk_size]
+                blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": _escape_mrkdwn(chunk)}})
+
+        client.chat_postMessage(channel=channel, text=full_text, blocks=blocks)
+
+        # 元のチャンネルに完了通知（ephemeral）- チャンネルへのリンク付きで内容の場所を明示
         if channel_id and user_id:
             client.chat_postEphemeral(
                 channel=channel_id,
                 user=user_id,
-                text=f"FBを {channel} に送信しました。",
+                text=f"FBを <#{channel}> に送信しました。チャンネルで内容をご確認ください。",
             )
     except Exception as e:
         if channel_id and user_id:
@@ -115,8 +158,19 @@ def _build_app() -> App:
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": "初回面談の書き起こしを貼り付けてください。FBが生成され、#dk_ca_fb に送信されます。",
+                            "text": "初回面談の書き起こしを貼り付けてください。FBが生成され、#dk_ca_初回面談fb に送信されます。担当者（あなた）へのメンションと候補者名が自動で付きます。",
                         },
+                    },
+                    {
+                        "type": "input",
+                        "block_id": "candidate_name_block",
+                        "element": {
+                            "type": "plain_text_input",
+                            "action_id": "candidate_name_input",
+                            "placeholder": {"type": "plain_text", "text": "例: 山田太郎"},
+                        },
+                        "label": {"type": "plain_text", "text": "候補者名（任意）"},
+                        "optional": True,
                     },
                     {
                         "type": "input",
@@ -146,6 +200,10 @@ def _build_app() -> App:
         transcript_input = transcript_block.get("transcript_input", {})
         transcript = transcript_input.get("value", "").strip()
 
+        candidate_name_block = values.get("candidate_name_block", {})
+        candidate_name_input = candidate_name_block.get("candidate_name_input", {})
+        candidate_name = candidate_name_input.get("value", "").strip()
+
         if not transcript:
             return
 
@@ -157,6 +215,7 @@ def _build_app() -> App:
         thread = threading.Thread(
             target=_run_fb_generation_and_post,
             args=(transcript, channel_id, user_id),
+            kwargs={"candidate_name": candidate_name},
         )
         thread.daemon = True
         thread.start()

@@ -61,11 +61,11 @@ Git push で自動デプロイ。詳細は [docs/16-railway-deploy.md](16-railwa
 |--------|------|------|
 | `ANTHROPIC_API_KEY` | いずれか | Anthropic API キー |
 | `OPENAI_API_KEY` | いずれか | OpenAI API キー |
-| `SLACK_WEBHOOK_URL` | CLI用 | Incoming Webhook（#dk_ca_fb） |
+| `SLACK_WEBHOOK_URL` | CLI用 | Incoming Webhook（#dk_ca_初回面談fb） |
 | `SLACK_BOT_TOKEN` | /fb用 | Bot OAuth Token (xoxb-...) |
 | `SLACK_APP_TOKEN` | /fb用 | App-Level Token (xapp-...) Socket Mode |
 | `SLACK_SIGNING_SECRET` | /fb用 | Signing Secret |
-| `SLACK_CHANNEL` | いずれか | 送信先（例: #dk_ca_fb） |
+| `SLACK_CHANNEL` | いずれか | 送信先（チャンネルID: C0AELMP88Q6 または #dk_ca_初回面談fb） |
 
 ---
 

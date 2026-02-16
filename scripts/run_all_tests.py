@@ -62,7 +62,7 @@ def run_tests():
             raise ValueError("PSSが読み込めていません")
         if len(ops) < 1000:
             raise ValueError("OPSが読み込めていません")
-        if "### 8. 残論点" not in fb_format:
+        if "### 8. 残論点" not in fb_format or "深掘りレベル" not in fb_format or "転職ニーズの優先順位" not in fb_format:
             raise ValueError("config/fb_format.md が正しく読み込めていません")
     test("PSS・OPS・fb_format読み込み", check_refs)
 

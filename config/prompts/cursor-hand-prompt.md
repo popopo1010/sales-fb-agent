@@ -1,7 +1,7 @@
 # Cursor 手動FB生成用プロンプト（API不要）
 
 以下のプロンプトを Cursor チャットに貼り、書き起こしを添えて実行してください。  
-生成されたFBをコピーして #dk_ca_fb に貼り付ければ完了です。
+生成されたFBをコピーして #dk_ca_初回面談fb に貼り付ければ完了です。
 
 ---
 
@@ -29,6 +29,6 @@ PSS・オペレーションマニュアルに沿って評価し、
    - `@reference/pss` と `@reference/operations` と `@config/fb_format.md`
    - `work` がルートの場合: `@sales-fb-agent/config/fb_format.md` 等
 3. CursorがFBを生成する
-4. 出力をコピーして Slack の #dk_ca_fb に貼り付ける
+4. 出力をコピーして Slack の #dk_ca_初回面談fb に貼り付ける
 
 **APIキー・Slack設定は不要です。**

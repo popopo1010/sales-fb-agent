@@ -56,14 +56,14 @@ pip install -r requirements.txt
 # OpenAI API キー（必須）
 OPENAI_API_KEY=sk-あなたのAPIキー
 
-# Slack Webhook（送信先: #dk_ca_fb）
+# Slack Webhook（送信先: #dk_ca_初回面談fb）
 # チーム管理者から共有されたURLを貼り付ける
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx/xxx/xxx
 ```
 
 **Slack Webhook URL の共有：**  
 チーム管理者が `.env` の `SLACK_WEBHOOK_URL` の値をメンバーに共有してください（Slack DM、社内Wiki、1Password 等）。  
-※ Webhook URL は #dk_ca_fb への投稿権限を含むため、外部に漏れないよう注意してください。
+※ Webhook URL は #dk_ca_初回面談fb への投稿権限を含むため、外部に漏れないよう注意してください。
 
 ---
 
@@ -78,7 +78,7 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 python src/main.py data/transcripts/raw/書き起こしファイル名.txt
 ```
 
- → FB が #dk_ca_fb に投稿されます。
+ → FB が #dk_ca_初回面談fb に投稿されます。
 
 ### パターンB：いったん出力だけ確認したい
 
@@ -137,7 +137,7 @@ python scripts/test_full_flow.py
 1. 書き起こしを data/transcripts/raw/ に保存
 2. .env に ANTHROPIC_API_KEY（または OPENAI_API_KEY）を設定
 3. python src/main.py data/transcripts/raw/ファイル名.txt を実行
-4. #dk_ca_fb で FB を確認
+4. #dk_ca_初回面談fb で FB を確認
 ```
 
 **補足:** Anthropic API のクレジット不足時は、[console.anthropic.com](https://console.anthropic.com) でクレジットを追加してください。

@@ -2,7 +2,7 @@
 """
 営業FBエージェント - メインエントリポイント
 
-初回面談の書き起こしからFBを生成し、Slack #dk_ca_fb に送信する。
+初回面談の書き起こしからFBを生成し、Slack #dk_ca_初回面談fb に送信する。
 """
 
 import argparse
@@ -38,7 +38,7 @@ def run(
 
     Args:
         input_path: 書き起こしファイルのパス
-        channel: Slackチャンネル（未指定時は環境変数 SLACK_CHANNEL または #dk_ca_fb）
+        channel: Slackチャンネル（未指定時は環境変数 SLACK_CHANNEL または #dk_ca_初回面談fb）
         output_only: True の場合、FBを標準出力に表示するのみ（Slack送信しない）
         no_slack: True の場合、Slackに送信せず data/feedback/ に保存
 
@@ -95,7 +95,7 @@ def main():
     parser.add_argument(
         "-c", "--channel",
         default=None,
-        help="Slackチャンネル（例: #dk_ca_fb）。未指定時は環境変数 SLACK_CHANNEL を使用",
+        help="Slackチャンネル（例: #dk_ca_初回面談fb）。未指定時は環境変数 SLACK_CHANNEL を使用",
     )
     parser.add_argument(
         "-o", "--output-only",

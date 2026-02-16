@@ -15,4 +15,4 @@ alwaysApply: false
 FB生成時は必ず上記を参照し、**config/fb_format.md** で定義された8項目の形式で出力する。
 
 ## Slack送信先
-生成したFBは #dk_ca_fb に送信する（手動コピペまたはAPI連携）。
+生成したFBは #dk_ca_初回面談fb に送信する（手動コピペまたはAPI連携）。

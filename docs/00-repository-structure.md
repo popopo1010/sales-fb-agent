@@ -67,7 +67,7 @@ sales-fb-agent/
 | ファイル | 役割 |
 |----------|------|
 | `src/main.py` | CLI エントリポイント（書き起こしファイル→FB→Slack） |
-| `src/slack_app.py` | Slack /fb スラッシュコマンド（モーダルで書き起こし入力→FB生成） |
+| `src/slack_app.py` | Slack /fb スラッシュコマンド（モーダルで候補者名・書き起こし入力→担当メンション＋FB生成） |
 | `src/agent/generator.py` | FB生成（OpenAI/Anthropic + フォールバック） |
 | `src/slack/sender.py` | Slack送信（Webhook/Bot API） |
 | `config/fb_format.md` | FB出力形式の単一ソース（★） |

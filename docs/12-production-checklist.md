@@ -18,11 +18,11 @@ python scripts/run_all_tests.py
 python scripts/verify_slack.py
 ```
 
-**期待結果:** `【成功】#dk_ca_fb を確認してください。` と表示され、#dk_ca_fb にメッセージが投稿される。
+**期待結果:** `【成功】#dk_ca_初回面談fb を確認してください。` と表示され、#dk_ca_初回面談fb にメッセージが投稿される。
 
 **失敗した場合:**
 - `.env` に `SLACK_WEBHOOK_URL` が正しく設定されているか確認
-- Webhook URL が #dk_ca_fb 用か確認
+- Webhook URL が #dk_ca_初回面談fb 用か確認
 
 ---
 
@@ -56,7 +56,7 @@ print(f'OK: {len(t)} 文字読み込み')
 python scripts/test_full_flow.py
 ```
 
-**期待結果:** `[OK] 一連の流れが正常に完了しました。` と表示され、#dk_ca_fb にサンプルFBが投稿される。
+**期待結果:** `[OK] 一連の流れが正常に完了しました。` と表示され、#dk_ca_初回面談fb にサンプルFBが投稿される。
 
 ---
 
@@ -81,7 +81,7 @@ python scripts/test_full_flow.py
    ↓
 3. python src/main.py data/transcripts/raw/YYYYMMDD_顧客名_担当者.txt を実行
    ↓
-4. #dk_ca_fb でFBを確認
+4. #dk_ca_初回面談fb でFBを確認
 ```
 
 ---

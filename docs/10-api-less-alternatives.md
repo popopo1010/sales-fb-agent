@@ -5,7 +5,7 @@
 | 箇所 | 役割 | 使用API | 必須？ |
 |------|------|---------|--------|
 | **FB生成** | 書き起こしからFBを自動生成 | OpenAI / Anthropic など | 生成を自動化するなら必要 |
-| **Slack送信** | FBを #dk_ca_fb に投稿 | Slack Web API または Incoming Webhook | 自動投稿するなら必要 |
+| **Slack送信** | FBを #dk_ca_初回面談fb に投稿 | Slack Web API または Incoming Webhook | 自動投稿するなら必要 |
 
 → **完全にAPIを使わない場合**は、いずれも「手動」で代替する。
 
@@ -18,7 +18,7 @@
 | 処理 | 代替方法 | 手順 |
 |------|----------|------|
 | FB生成 | **Cursor チャット** | 書き起こしをCursorに貼り、`@reference/pss` `@reference/operations` で参照を指定し、FB生成を依頼する |
-| Slack送信 | **手動コピペ** | 生成されたFBをコピーし、#dk_ca_fb に手動で貼り付ける |
+| Slack送信 | **手動コピペ** | 生成されたFBをコピーし、#dk_ca_初回面談fb に手動で貼り付ける |
 
 **メリット：** APIキー・Slackアプリ・スクリプト不要  
 **デメリット：** 毎回手動でコピペが必要
@@ -78,7 +78,7 @@
    [書き起こしの内容を貼り付け or ファイルを@指定]
    ```
 
-3. **出力をコピーして #dk_ca_fb に貼り付け**
+3. **出力をコピーして #dk_ca_初回面談fb に貼り付け**
 
 **必要なもの：** Cursor、PSS・OPSの参照ドキュメントのみ  
 **不要なもの：** APIキー、Slackアプリ、Bot Token、OAuth、Incoming Webhook
@@ -101,7 +101,7 @@ FB生成は Cursor で行い、Slackへの投稿だけ自動化する場合の�
 1. https://api.slack.com/apps で「Create New App」→「From scratch」
 2. 「Incoming Webhooks」をオンにする
 3. 「Add New Webhook to Workspace」をクリック
-4. #dk_ca_fb を選択して許可
+4. #dk_ca_初回面談fb を選択して許可
 5. 発行された Webhook URL をコピー（`https://hooks.slack.com/services/...`）
 
 ### 送信例（curl）
@@ -112,7 +112,7 @@ curl -X POST -H 'Content-type: application/json' \
   https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 ```
 
-FB本文を `text` に入れてPOSTすれば、#dk_ca_fb に投稿される。
+FB本文を `text` に入れてPOSTすれば、#dk_ca_初回面談fb に投稿される。
 
 ---
 

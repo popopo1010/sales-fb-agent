@@ -11,10 +11,20 @@ from src.utils.loader import get_project_root
 def _format_feedback_for_slack(text: str) -> str:
     """FBの視認性向上：項目間の空行・各項目内の改行を正規化"""
     result = text
-    # 各 ### 見出し（1.〜9.）の前に空行を確保（連続空行でない限り）
-    result = re.sub(r"(?<!\n\n)(\n)(### \d+\.)", r"\n\n\2", result)
+    # 全体評価：スコアの直後に空行を確保
+    result = re.sub(r"(### 全体評価：[\d\-]/10点)\s*", r"\1\n\n", result)
+    # 各 ### 見出し（1.〜9.）の前に2行空けを確保
+    result = re.sub(r"\n+(### \d+\.)", r"\n\n\n\1", result)
+    # 見出しの直後にも改行を入れる
+    result = re.sub(r"(### \d+\.[^\n]*)(\n)(?=[^\n])", r"\1\n\n", result)
     # 箇条書きが1行に複数詰まっている場合を分離（。・ や 。- のパターン）
     result = re.sub(r"([。])\s*([・\-]\s+)", r"\1\n\2", result)
+    # ）や。の直後の ・ または ①②③ で改行（語句内の・は対象外）
+    result = re.sub(r"([。）)])\s*([・·•①②③④⑤⑥⑦⑧⑨⑩])", r"\1\n\2", result)
+    # 行中の「- 」も箇条書きとして改行
+    result = re.sub(r"([。】])\s*(-\s+)", r"\1\n\2", result)
+    # 箇条書きの各要素の後に改行を確保
+    result = re.sub(r"(^[・\-]\s+[^\n]+)(\n)(?=[^・\-])", r"\1\n\n", result, flags=re.MULTILINE)
     return result.strip()
 
 
@@ -33,6 +43,18 @@ def _markdown_to_plain(text: str) -> str:
     return result
 
 
+def _force_line_breaks(text: str) -> str:
+    """最終チェック：・や①②③の前で確実に改行する"""
+    result = text
+    # 「・ 」（・+スペース）の前で改行＝箇条書きの区切り。語句内の「チャンス・定年」は・の直後に文字が来るので対象外
+    result = re.sub(r"([^\n])([・·•]\s+)", r"\1\n\2", result)
+    # ）や。の直後の ①②③ で改行
+    result = re.sub(r"([。）)])\s*([①②③④⑤⑥⑦⑧⑨⑩])", r"\1\n\2", result)
+    # 「〇〇した点・」「〇〇不足・」等、文末語の直後の ・ で改行
+    result = re.sub(r"(点|不足|必要|ある|整理)\s*([・·•])\s*", r"\1\n\2 ", result)
+    return result
+
+
 def send_feedback(
     text: str,
     channel: str | None = None,
@@ -45,12 +67,13 @@ def send_feedback(
     SLACK_WEBHOOK_URL があれば Webhook、SLACK_BOT_TOKEN があれば Bot API を使用。
     どちらもなければ save_path に保存（指定がなければ data/feedback/ に保存）。
     """
-    channel = channel or os.environ.get("SLACK_CHANNEL", "#dk_ca_fb")
+    channel = (channel or os.environ.get("SLACK_CHANNEL") or "C0AELMP88Q6").strip()
 
     if not save_only:
-        # 視認性向上のフォーマット調整 → Markdownをプレーンテキストに変換
+        # 視認性向上のフォーマット調整 → Markdownをプレーンテキストに変換 → 改行強制
         formatted = _format_feedback_for_slack(text)
         plain_text = _markdown_to_plain(formatted)
+        plain_text = _force_line_breaks(plain_text)
         # Incoming Webhook
         webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
         if webhook_url:

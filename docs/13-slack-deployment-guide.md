@@ -55,7 +55,7 @@
 
 ### 1.5 チャンネルへの招待
 
-1. Slackで **#dk_ca_fb** チャンネルを開く
+1. Slackで **#dk_ca_初回面談fb** チャンネルを開く
 2. `/invite @営業FBエージェント` でBotを招待
 
 ---
@@ -67,7 +67,7 @@
 ```env
 # Slack（既存）
 SLACK_WEBHOOK_URL=https://hooks.slack.com/...
-SLACK_CHANNEL=#dk_ca_fb
+SLACK_CHANNEL=C0AELMP88Q6
 
 # Slackアプリ（追加）
 SLACK_BOT_TOKEN=xoxb-xxxx
@@ -135,9 +135,9 @@ sudo systemctl start sales-fb-slack
 
 1. 任意のチャンネルで `/fb` と入力
 2. モーダルが開く
-3. 初回面談の書き起こしを貼り付け
+3. **候補者名**（任意）と**初回面談の書き起こし**を入力
 4. **FBを生成** をクリック
-5. 数十秒後、#dk_ca_fb にFBが投稿される
+5. 数十秒後、#dk_ca_初回面談fb にFBが投稿される（担当者へのメンション＋候補者名が自動で付く）
 6. 完了通知がそのチャンネルに表示される
 
 ---
@@ -148,7 +148,7 @@ sudo systemctl start sales-fb-slack
 |------|------|
 | `/fb` が表示されない | アプリをワークスペースにインストールし、チャンネルに招待しているか確認 |
 | モーダルが開かない | SLACK_APP_TOKEN が正しいか、Socket Mode が有効か確認 |
-| FBが投稿されない | SLACK_BOT_TOKEN、#dk_ca_fb への招待、ANTHROPIC_API_KEY を確認 |
+| FBが投稿されない | SLACK_BOT_TOKEN、#dk_ca_初回面談fb への招待、ANTHROPIC_API_KEY を確認 |
 | アプリが落ちる | ログを確認。API のレート制限やクレジット不足の可能性 |
 
 ---

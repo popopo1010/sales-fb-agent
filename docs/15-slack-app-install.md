@@ -18,7 +18,7 @@
 ```yaml
 display_information:
   name: 営業FBエージェント
-  description: "初回面談の書き起こしからFBを生成し #dk_ca_fb に送信"
+  description: "初回面談の書き起こしからFBを生成し #dk_ca_初回面談fb に送信"
 
 features:
   bot_user:
@@ -66,7 +66,7 @@ settings:
 
 ## チャンネルに招待（任意）
 
-1. Slack で **#dk_ca_fb** を開く
+1. Slack で **#dk_ca_初回面談fb** を開く
 2. `/invite @営業FBエージェント` と入力して送信
 
 ---

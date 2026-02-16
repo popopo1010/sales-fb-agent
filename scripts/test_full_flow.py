@@ -70,7 +70,7 @@ def main():
     print("[3/3] Slack に送信中...")
     if send_feedback(fb):
         print("[OK] 一連の流れが正常に完了しました。")
-        print("     #dk_ca_fb でFBを確認してください。")
+        print("     #dk_ca_初回面談fb でFBを確認してください。")
         return 0
 
     print("[ERROR] Slack 送信に失敗しました。")

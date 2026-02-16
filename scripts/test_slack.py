@@ -25,7 +25,7 @@ def test_slack_webhook():
 
     message = """【営業FBエージェント】Slack連携テスト
 
-✅ このメッセージが表示されていれば、#dk_ca_fb への送信は正常に動作しています。
+✅ このメッセージが表示されていれば、#dk_ca_初回面談fb への送信は正常に動作しています。
 
 テスト日時: 2025-02-13
 """
@@ -41,7 +41,7 @@ def test_slack_webhook():
         with urllib.request.urlopen(req, timeout=10) as res:
             if res.status == 200:
                 print("[OK] Slack にテストメッセージを送信しました。")
-                print("     #dk_ca_fb チャンネルを確認してください。")
+                print("     #dk_ca_初回面談fb チャンネルを確認してください。")
                 return True
             else:
                 print(f"[ERROR] 予期しないレスポンス: {res.status}")

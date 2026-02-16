@@ -64,7 +64,7 @@ Railway はデフォルトで `web` プロセスを探すが、このアプリ�
 | `SLACK_APP_TOKEN` | `xapp-1-...` | Socket Mode → App-Level Tokens |
 | `SLACK_SIGNING_SECRET` | （英数字） | Basic Information から |
 | `ANTHROPIC_API_KEY` | `sk-ant-...` | Claude API |
-| `SLACK_CHANNEL` | `#dk_ca_fb` | 省略時はこちらがデフォルト |
+| `SLACK_CHANNEL` | `C0AELMP88Q6` | チャンネルID（推奨）。省略時はこちらがデフォルト |
 
 ※`SLACK_WEBHOOK_URL` は `/fb` には不要だが、他機能で使うなら追加。
 

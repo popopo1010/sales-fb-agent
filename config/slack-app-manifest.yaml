@@ -3,7 +3,7 @@
 
 display_information:
   name: "営業FBエージェント"
-  description: "初回面談の書き起こしからFBを生成し #dk_ca_fb に送信"
+  description: "初回面談の書き起こしからFBを生成し #dk_ca_初回面談fb に送信"
   background_color: "#2c3e50"
 
 features:

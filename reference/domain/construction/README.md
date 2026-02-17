@@ -13,8 +13,37 @@
 | 1 | **[00-はじめに.md](./00-はじめに.md)** | 5分 |
 | 2 | [01-executive-summary.md](./01-executive-summary.md) | 10分 |
 | 3 | [18-company-meeting-essentials.md](./18-company-meeting-essentials.md) セクション1〜2 | 15分 |
+| 4 | [19-onboarding-prex.md](./19-onboarding-prex.md) | 20分 |
 
 ※00に用語集・成長セグメントの具体像・バリューチェーン・読む順番をまとめています。
+
+---
+
+## 全体構成
+
+```
+【入社者向け】
+00 はじめに
+    ↓
+01 エグゼクティブサマリー
+    ↓
+18 企業代表面談必須事項（セクション1〜2）
+    ↓
+19 オンボ資料（電気実務・施工管理・面談フロー・障壁ヒアリング）
+
+【業務別】
+├─ 市場・セグメント … 02 市場構造、03 セグメント
+├─ 人材 … 04 プレイブック、13 資格
+├─ 企業・IR … 09 企業IR一覧、10 設備戦略、company-ir/（69社詳細）
+├─ シナリオ・分析 … 11 コンサル必要十分、12 シナリオ、15 コンサル5社視点
+├─ 面談準備 … 18 企業代表面談必須事項（全文）
+├─ 補助金・政策 … 08 政府・補助金
+└─ 検証・更新 … 05 ソース、14 検証、16〜17 政策チェック
+
+【FBシステム・論点】
+20 CAヒアリングFBシステムの課題・論点
+   ※Slack /fb の仕組み、マニュアルとのギャップ、検討論点
+```
 
 ---
 
@@ -34,24 +63,8 @@
 | **コンサル視点チェック** | [11-consulting-industry-analysis.md](./11-consulting-industry-analysis.md)、[15-consulting-firm-check.md](./15-consulting-firm-check.md) |
 | **政策・未来方針チェック** | [16-government-policy-official-check.md](./16-government-policy-official-check.md)、[17-japan-future-policy-alignment.md](./17-japan-future-policy-alignment.md) |
 | **情報更新・検証** | [05-sources.md](./05-sources.md)、[14-verification-checklist.md](./14-verification-checklist.md) |
-
----
-
-## 全体構成
-
-```
-00 はじめに（入社者向けガイド）
-    ↓
-01 エグゼクティブサマリー
-│
-├─ 市場・セグメント … 02 市場構造、03 セグメント
-├─ 人材 … 04 プレイブック、13 資格
-├─ 企業・IR … 09 企業IR一覧、10 設備戦略、company-ir/（69社詳細）
-├─ シナリオ・分析 … 11 コンサル必要十分、12 シナリオ、15 コンサル5社視点
-├─ 面談準備 … 18 企業代表面談必須事項
-├─ 入社者オンボ … 19 電気実務経験・資格マップ・施工管理・面談フロー
-└─ 支援 … 05 ソース、06 矢野、07 テンプレ、08 政府・補助金、14 検証
-```
+| **CAヒアリングFBシステムの課題・論点** | [20-ca-fb-system-gaps-and-issues.md](./20-ca-fb-system-gaps-and-issues.md) |
+| **FBシステムの使い方・トラブルシューティング** | [docs/18-member-instructions.md](../../docs/18-member-instructions.md) |
 
 ---
 
@@ -78,7 +91,8 @@
 | 16 | [16-government-policy-official-check.md](./16-government-policy-official-check.md) | 政府政策担当者視点チェック |
 | 17 | [17-japan-future-policy-alignment.md](./17-japan-future-policy-alignment.md) | 日本国未来方針との整合性チェック |
 | 18 | [18-company-meeting-essentials.md](./18-company-meeting-essentials.md) | 企業代表面談 必須理解事項 |
-| 19 | [19-onboarding-prex.md](./19-onboarding-prex.md) | **新規入社者向けオンボ資料**（電気実務経験・資格マップ・施工管理・面談フロー） |
+| 19 | [19-onboarding-prex.md](./19-onboarding-prex.md) | **新規入社者向けオンボ資料**（電気実務・資格・施工管理・面談フロー・障壁ヒアリング） |
+| 20 | [20-ca-fb-system-gaps-and-issues.md](./20-ca-fb-system-gaps-and-issues.md) | **CAヒアリングFBシステム**の課題感・マニュアルの不足・論点 |
 | - | [company-ir/](./company-ir/) | IR分析（マッキンゼー・フレームワーク）、[companies/](./company-ir/companies/)（69社詳細） |
 
 ---

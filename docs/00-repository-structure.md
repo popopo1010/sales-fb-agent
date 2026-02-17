@@ -18,22 +18,21 @@ sales-fb-agent/
 │
 ├── reference/                     # 参照ドキュメント
 │   ├── pss/                       # PSSマニュアル
-│   │   ├── pss-sales-scheme.md
-│   │   └── 【PSS】テキスト.pdf
-│   └── operations/                # オペレーションマニュアル
-│       ├── operation-manual.md
-│       └── salary-market.md      # 年収相場（資格・経験別）
+│   ├── operations/                # オペレーションマニュアル
+│   └── domain/                    # ドメイン別参照（建設等）
 │
 ├── data/                          # データ
 │   ├── transcripts/raw/           # 書き起こし（入力）
 │   ├── feedback/                  # FB履歴
-│   └── examples/                  # サンプル
+│   ├── examples/                  # サンプル
+│   └── master/                    # マスタ（候補者情報CSV）
 │
 ├── src/                           # ソースコード
 │   ├── main.py                    # CLI エントリポイント
 │   ├── slack_app.py               # Slack /fb スラッシュコマンド（Bolt）
 │   ├── agent/                     # FB生成
 │   ├── slack/                     # Slack送信
+│   ├── master/                    # マスタ保存
 │   └── utils/                     # 読み込みユーティリティ
 │
 ├── config/                        # 設定
@@ -43,13 +42,17 @@ sales-fb-agent/
 │       ├── fb_generation.txt
 │       └── cursor-hand-prompt.md
 │
-├── scripts/                       # テスト・診断スクリプト
+├── scripts/                       # 検証・セットアップ
 │   ├── verify_slack.py            # Slack連携検証
 │   ├── diagnose_api.py            # API診断
 │   ├── run_all_tests.py           # 全検証
-│   └── test_full_flow.py          # 一連の流れテスト
+│   ├── test_full_flow.py          # 一連の流れテスト
+│   ├── create_member_package.sh   # 管理者用：メンバー配布パッケージ作成
+│   └── setup_member.sh            # メンバー用：セットアップ
 │
-├── .cursor/rules/                 # Cursor ルール
+├── .cursor/                       # Cursor 設定
+│   ├── rules/                     # ルール
+│   └── commands/                  # コマンド
 ├── tests/
 ├── logs/
 │
@@ -67,9 +70,10 @@ sales-fb-agent/
 | ファイル | 役割 |
 |----------|------|
 | `src/main.py` | CLI エントリポイント（書き起こしファイル→FB→Slack） |
-| `src/slack_app.py` | Slack /fb スラッシュコマンド（モーダルで候補者名・書き起こし入力→担当メンション＋FB生成） |
-| `src/agent/generator.py` | FB生成（OpenAI/Anthropic + フォールバック） |
+| `src/slack_app.py` | Slack /fb スラッシュコマンド（モーダル入力→FB生成→マスタ保存） |
+| `src/agent/generator.py` | FB生成・概要生成（OpenAI/Anthropic + フォールバック） |
 | `src/slack/sender.py` | Slack送信（Webhook/Bot API） |
+| `src/master/store.py` | マスタ保存（候補者情報CSV追記） |
 | `config/fb_format.md` | FB出力形式の単一ソース（★） |
 | `config/prompts/fb_generation.txt` | プロンプトテンプレート |
 | `config/slack-app-manifest.yaml` | Slackアプリ作成用マニフェスト |

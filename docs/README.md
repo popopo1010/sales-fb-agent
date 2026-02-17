@@ -4,7 +4,7 @@
 
 | ドキュメント | 説明 |
 |-------------|------|
-| [18-member-instructions.md](18-member-instructions.md) | **★指示書**：Git共有・ローカル実行でのメンバー向け手順 |
+| [18-member-instructions.md](18-member-instructions.md) | **★指示書**：Git共有・パッケージ配布・メンバー向け手順 |
 | [14-member-quickstart.md](14-member-quickstart.md) | **メンバー向け**：/fb の使い方（シェア用） |
 | [13-slack-deployment-guide.md](13-slack-deployment-guide.md) | **管理者向け**：Slack連携（/fb 全員利用） |
 | [16-railway-deploy.md](16-railway-deploy.md) | **管理者向け**：Railway デプロイ（push で自動デプロイ） |
@@ -38,6 +38,7 @@
 | [03-use-cases.md](03-use-cases.md) | ユースケース |
 | [05-task-backlog.md](05-task-backlog.md) | タスクバックログ |
 | [10-api-less-alternatives.md](10-api-less-alternatives.md) | API不使用時の代替 |
+| [19-scoring-rubric-draft.md](19-scoring-rubric-draft.md) | 採点ルーブリック（ドラフト） |
 
 ## 参照・設定の単一ソース
 
@@ -46,3 +47,4 @@
 | **config/fb_format.md** | FB出力形式の唯一の定義（プロンプト・フォールバックはすべてここを参照） |
 | reference/operations/operation-manual.md | OPSマニュアル（ヒアリング・心理学・3-2bis評価・転職ニーズ優先順位） |
 | reference/operations/salary-market.md | 年収相場データ |
+| data/master/candidates.csv | 候補者マスタ（/fb で自動追記：候補者・CA担当者・概要・資格等） |

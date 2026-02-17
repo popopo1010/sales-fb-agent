@@ -136,3 +136,39 @@ def _generate_anthropic(prompt: str) -> str:
         messages=[{"role": "user", "content": prompt}],
     )
     return response.content[0].text
+
+
+def generate_transcript_summary(transcript: str) -> str:
+    """書き起こしからトーク内容の概要を生成（マスタ用）。
+    API失敗時は空文字を返す。"""
+    if not transcript or len(transcript.strip()) < 50:
+        return ""
+    prompt = """以下の初回面談の書き起こしを、200〜400文字で概要にまとめてください。
+候補者のニーズ、転職理由・背景、意思決定のポイントを整理して記載してください。
+
+【書き起こし】
+"""
+    prompt += transcript[:8000]  # 長い場合は先頭を優先
+    try:
+        if os.environ.get("OPENAI_API_KEY"):
+            from openai import OpenAI
+            client = OpenAI()
+            r = client.chat.completions.create(
+                model=os.environ.get("OPENAI_MODEL", "gpt-4o"),
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=500,
+            )
+            return (r.choices[0].message.content or "").strip()
+        if os.environ.get("ANTHROPIC_API_KEY"):
+            from anthropic import Anthropic
+            client = Anthropic()
+            r = client.messages.create(
+                model=os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
+                max_tokens=500,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return (r.content[0].text or "").strip()
+    except Exception:
+        pass
+    return ""

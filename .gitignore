@@ -1,6 +1,8 @@
 # 環境・秘密情報
 .env
 *.pem
+member-package/
+member-package.zip
 
 # Python
 .venv/
@@ -18,6 +20,8 @@ data/feedback/*
 !data/feedback/.gitkeep
 data/examples/*
 !data/examples/.gitkeep
+data/master/*.csv
+!data/master/.gitkeep
 
 # ログ
 logs/*

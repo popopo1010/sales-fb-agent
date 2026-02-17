@@ -16,6 +16,7 @@ python src/main.py data/transcripts/raw/書き起こし.txt
 |----------|------|
 | **書き起こし** | `data/transcripts/raw/` に `.txt` で保存 |
 | **APIキー・Webhook** | `.env` ファイル（プロジェクト直下） |
+| **マスタ（候補者情報）** | `data/master/candidates.csv`（/fb で自動追記） |
 
 ## 環境構築
 
@@ -65,16 +66,19 @@ python scripts/diagnose_api.py    # API診断
 
 ```
 sales-fb-agent/
-├── config/            # 設定
-│   ├── fb_format.md   # FB出力形式の単一ソース（★形式変更時はここを編集）
-│   └── prompts/      # プロンプト
-├── reference/         # PSS・OPSマニュアル
-├── data/              # 書き起こし・FB
-├── src/               # ソースコード
-├── scripts/           # 検証・診断
+├── config/            # 設定（fb_format.md, prompts/）
+├── reference/         # PSS・OPS・ドメイン参照
+├── data/              # 書き起こし・FB・マスタ
+│   ├── transcripts/raw/  # 書き起こし
+│   ├── feedback/        # FB履歴
+│   └── master/          # 候補者マスタ（candidates.csv）
+├── src/               # ソースコード（main, slack_app, agent, slack, master）
+├── scripts/           # 検証・セットアップ
 ├── docs/              # ドキュメント
 └── README.md
 ```
+
+詳細は [docs/00-repository-structure.md](docs/00-repository-structure.md) を参照。
 
 ## Slack から使う（/fb コマンド）
 

@@ -6,6 +6,31 @@
 
 ---
 
+## ★ 推奨: パッケージで渡す（メンバーは編集不要）
+
+メンバーが `.env` を編集せず、最初から使える形で渡す方法です。
+
+### 管理者の手順
+
+```bash
+cd sales-fb-agent
+./scripts/create_member_package.sh
+zip -r member-package.zip member-package
+```
+
+`member-package.zip` を Slack DM 等でメンバーに送る。
+
+### メンバーの手順
+
+1. zip を解凍
+2. 解凍したフォルダ内でターミナルを開く
+3. `chmod +x setup_member.sh && ./setup_member.sh` を実行
+4. 完了メッセージに表示される起動コマンドを実行
+
+**メンバーは .env を編集する必要はありません。** 最初から設定済みです。
+
+---
+
 ## 管理者が記入する項目（共有前に確認）
 
 | 項目 | 状態 |
@@ -136,6 +161,8 @@ python -m src.slack_app
 | `ModuleNotFoundError` | `pip install -r requirements.txt` を実行 |
 | FBが投稿されない | `.env` の値が正しいか確認。管理者に連絡 |
 | `/fb` が反応しない | ターミナルで `python -m src.slack_app` が起動しているか確認 |
+| 「Slack になかなか接続できません」 | アプリ未起動の可能性。`python -m src.slack_app` を起動してから `/fb` を実行。SLACK_APP_TOKEN が正しいか確認 |
+| 候補者名を空で送信してエラー | 修正済み。再発したら管理者に連絡 |
 | 出力形式を変えたい | 管理者に依頼（`config/fb_format.md` の編集） |
 
 ---

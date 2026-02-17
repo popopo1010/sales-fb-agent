@@ -41,6 +41,28 @@ def _escape_mrkdwn(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+def _parse_modal_values(view: dict) -> tuple[str, str, str, str, str]:
+    """モーダルの values から transcript, candidate_name, qualifications, experience, age を安全に取得。"""
+    state = view.get("state") or {}
+    values = state.get("values") or {}
+
+    def _get_val(block_id: str, action_id: str) -> str:
+        block = values.get(block_id) or {}
+        elem = block.get(action_id) or {}
+        v = elem.get("value")
+        return v.strip() if isinstance(v, str) else ""
+
+    transcript = _get_val("transcript_block", "transcript_input")
+    candidate_name = _get_val("candidate_name_block", "candidate_name_input")
+    ca_person = _get_val("ca_person_block", "ca_person_input")
+    qualifications = _get_val("qualifications_block", "qualifications_input")
+    experience = _get_val("experience_block", "experience_input")
+    age = _get_val("age_block", "age_input")
+    desired_salary = _get_val("desired_salary_block", "desired_salary_input")
+
+    return transcript, candidate_name, ca_person, qualifications, experience, age, desired_salary
+
+
 def _create_app() -> App:
     """App インスタンスを生成（環境変数チェック付き）"""
     token = os.environ.get("SLACK_BOT_TOKEN")
@@ -57,6 +79,11 @@ def _run_fb_generation_and_post(
     channel_id: str,
     user_id: str,
     candidate_name: str = "",
+    ca_person: str = "",
+    qualifications: str = "",
+    experience: str = "",
+    age: str = "",
+    desired_salary: str = "",
 ) -> None:
     """FB生成してSlackに投稿（バックグラウンド実行）"""
     from src.agent.generator import build_prompt, generate_feedback
@@ -119,6 +146,23 @@ def _run_fb_generation_and_post(
                 user=user_id,
                 text=f"FBを <#{channel}> に送信しました。チャンネルで内容をご確認ください。",
             )
+
+        # マスタに候補者情報を保存（概要は書き起こしからLLMで生成）
+        try:
+            from src.agent.generator import generate_transcript_summary
+            from src.master.store import save_candidate_to_master
+            summary = generate_transcript_summary(transcript)
+            save_candidate_to_master(
+                candidate=candidate_name,
+                ca_person=ca_person,
+                summary=summary,
+                qualifications=qualifications,
+                experience=experience,
+                age=age,
+                desired_salary=desired_salary,
+            )
+        except Exception:
+            pass  # マスタ保存失敗はFB投稿に影響させない
     except Exception as e:
         if channel_id and user_id:
             try:
@@ -174,6 +218,61 @@ def _build_app() -> App:
                     },
                     {
                         "type": "input",
+                        "block_id": "ca_person_block",
+                        "element": {
+                            "type": "plain_text_input",
+                            "action_id": "ca_person_input",
+                            "placeholder": {"type": "plain_text", "text": "例: 山田"},
+                        },
+                        "label": {"type": "plain_text", "text": "CA担当者（任意・マスタに保存）"},
+                        "optional": True,
+                    },
+                    {
+                        "type": "input",
+                        "block_id": "qualifications_block",
+                        "element": {
+                            "type": "plain_text_input",
+                            "action_id": "qualifications_input",
+                            "placeholder": {"type": "plain_text", "text": "例: 一級建築士、宅建"},
+                        },
+                        "label": {"type": "plain_text", "text": "保有資格（任意・マスタに保存）"},
+                        "optional": True,
+                    },
+                    {
+                        "type": "input",
+                        "block_id": "experience_block",
+                        "element": {
+                            "type": "plain_text_input",
+                            "action_id": "experience_input",
+                            "placeholder": {"type": "plain_text", "text": "例: 建築設計5年、施工管理3年"},
+                        },
+                        "label": {"type": "plain_text", "text": "経験（任意・マスタに保存）"},
+                        "optional": True,
+                    },
+                    {
+                        "type": "input",
+                        "block_id": "age_block",
+                        "element": {
+                            "type": "plain_text_input",
+                            "action_id": "age_input",
+                            "placeholder": {"type": "plain_text", "text": "例: 35歳"},
+                        },
+                        "label": {"type": "plain_text", "text": "年齢（任意・マスタに保存）"},
+                        "optional": True,
+                    },
+                    {
+                        "type": "input",
+                        "block_id": "desired_salary_block",
+                        "element": {
+                            "type": "plain_text_input",
+                            "action_id": "desired_salary_input",
+                            "placeholder": {"type": "plain_text", "text": "例: 600万円"},
+                        },
+                        "label": {"type": "plain_text", "text": "希望年収（任意・マスタに保存）"},
+                        "optional": True,
+                    },
+                    {
+                        "type": "input",
                         "block_id": "transcript_block",
                         "element": {
                             "type": "plain_text_input",
@@ -195,27 +294,26 @@ def _build_app() -> App:
         """ モーダル送信時: 即座にackし、バックグラウンドでFB生成 """
         ack()
 
-        values = view.get("state", {}).get("values", {})
-        transcript_block = values.get("transcript_block", {})
-        transcript_input = transcript_block.get("transcript_input", {})
-        transcript = transcript_input.get("value", "").strip()
-
-        candidate_name_block = values.get("candidate_name_block", {})
-        candidate_name_input = candidate_name_block.get("candidate_name_input", {})
-        candidate_name = candidate_name_input.get("value", "").strip()
-
+        transcript, candidate_name, ca_person, qualifications, experience, age, desired_salary = _parse_modal_values(view)
         if not transcript:
             return
 
         import json
-        metadata = json.loads(view.get("private_metadata", "{}"))
-        channel_id = metadata.get("channel_id", "")
-        user_id = metadata.get("user_id", body.get("user", {}).get("id", ""))
+        metadata = json.loads(view.get("private_metadata") or "{}")
+        channel_id = metadata.get("channel_id") or ""
+        user_id = metadata.get("user_id") or (body.get("user") or {}).get("id") or ""
 
         thread = threading.Thread(
             target=_run_fb_generation_and_post,
             args=(transcript, channel_id, user_id),
-            kwargs={"candidate_name": candidate_name},
+            kwargs={
+                "candidate_name": candidate_name,
+                "ca_person": ca_person,
+                "qualifications": qualifications,
+                "experience": experience,
+                "age": age,
+                "desired_salary": desired_salary,
+            },
         )
         thread.daemon = True
         thread.start()

@@ -29,7 +29,8 @@ sales-fb-agent/
 │
 ├── src/                           # ソースコード
 │   ├── main.py                    # CLI エントリポイント
-│   ├── slack_app.py               # Slack /fb スラッシュコマンド（Bolt）
+│   ├── slack_app/                 # Slack /fb スラッシュコマンド（Bolt）
+│   │   ├── main.py, modal.py, poster.py, models.py
 │   ├── agent/                     # FB生成
 │   ├── slack/                     # Slack送信
 │   ├── master/                    # マスタ保存
@@ -70,7 +71,7 @@ sales-fb-agent/
 | ファイル | 役割 |
 |----------|------|
 | `src/main.py` | CLI エントリポイント（書き起こしファイル→FB→Slack） |
-| `src/slack_app.py` | Slack /fb スラッシュコマンド（モーダル入力→FB生成→マスタ保存） |
+| `src/slack_app/` | Slack /fb スラッシュコマンド（モーダル入力→FB生成→マスタ保存） |
 | `src/agent/generator.py` | FB生成・概要生成（OpenAI/Anthropic + フォールバック） |
 | `src/slack/sender.py` | Slack送信（Webhook/Bot API） |
 | `src/master/store.py` | マスタ保存（候補者情報CSV追記） |

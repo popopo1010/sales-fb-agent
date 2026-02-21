@@ -17,6 +17,9 @@
 ※ファイルから実行する場合:
   cd sales-fb-agent && source .venv/bin/activate   # パスは環境により異なります（例: cd ~/work/sales-fb-agent）
   python src/main.py data/transcripts/raw/書き起こし.txt
+
+※既に使っている人：アップデート
+  cd sales-fb-agent && git pull && source .venv/bin/activate && pip install -r requirements.txt
 ```
 
 ---

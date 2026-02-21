@@ -1,7 +1,11 @@
 """参照ドキュメント・書き起こしの読み込みユーティリティ"""
 
+from __future__ import annotations
+
 import logging
 import os
+import re
+from datetime import datetime
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -58,3 +62,30 @@ def load_transcript(file_path: str | Path) -> str:
         raise FileNotFoundError(f"書き起こしファイルが見つかりません: {path}")
 
     return path.read_text(encoding="utf-8")
+
+
+def save_feedback_to_file(
+    feedback: str,
+    candidate_name: str = "",
+    save_path: str | Path | None = None,
+) -> Path:
+    """FBを data/feedback/ に保存。candidate_name があればファイル名に含める。"""
+    root = get_project_root()
+    if save_path is not None:
+        path = Path(save_path)
+        if not path.is_absolute():
+            path = root / path
+    else:
+        feedback_dir = root / "data" / "feedback"
+        feedback_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+        if candidate_name:
+            safe_name = re.sub(
+                r"[^\w\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]", "_", candidate_name
+            )[:30]
+            path = feedback_dir / f"fb_{safe_name}_{timestamp}.md"
+        else:
+            path = feedback_dir / f"fb_{timestamp}.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(feedback, encoding="utf-8")
+    return path

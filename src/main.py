@@ -5,6 +5,8 @@
 初回面談の書き起こしからFBを生成し、Slack #dk_ca_初回面談fb に送信する。
 """
 
+from __future__ import annotations
+
 import argparse
 import logging
 import os

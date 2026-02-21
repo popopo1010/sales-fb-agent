@@ -24,6 +24,8 @@ def build_prompt(
     fb_format = fb_format_path.read_text(encoding="utf-8") if fb_format_path.exists() else ""
 
     template_path = root / "config" / "prompts" / "fb_generation.txt"
+    if not template_path.exists():
+        raise FileNotFoundError(f"プロンプトテンプレートが見つかりません: {template_path}")
     template = template_path.read_text(encoding="utf-8")
 
     return template.format(
@@ -119,6 +121,9 @@ def generate_feedback(prompt: str, transcript: str = "") -> str:
             if _is_fatal_api_error(e):
                 return _generate_fallback_feedback(transcript, str(e))
             raise last_error
+    # 3回連続レート制限でループ終了した場合
+    logger.error("レート制限により3回リトライ失敗。フォールバックFBを返します。")
+    return _generate_fallback_feedback(transcript, str(last_error) if last_error else "レート制限")
 
 
 def _generate_fallback_feedback(transcript: str, error_reason: str = "") -> str:

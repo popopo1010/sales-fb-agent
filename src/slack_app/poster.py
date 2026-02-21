@@ -1,16 +1,16 @@
 """FB生成・Slack投稿・マスタ保存"""
 
+from __future__ import annotations
+
 import logging
 import os
 import re
-from datetime import datetime
-from pathlib import Path
 
 from slack_sdk import WebClient
 
-from src.config import DEFAULT_SLACK_CHANNEL
+from src.config import get_slack_channel
 from src.slack.formatting import format_feedback_to_plain
-from src.utils.loader import get_project_root
+from src.utils.loader import save_feedback_to_file
 from .models import CandidateData
 
 logger = logging.getLogger(__name__)
@@ -23,19 +23,7 @@ def _escape_mrkdwn(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def _save_fb_to_file(feedback: str, candidate_name: str) -> Path | None:
-    """FB本文を data/feedback/ に保存。候補者名を含むファイル名で保存。"""
-    root = get_project_root()
-    feedback_dir = root / "data" / "feedback"
-    feedback_dir.mkdir(parents=True, exist_ok=True)
-    safe_name = re.sub(r"[^\w\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff]", "_", candidate_name or "unknown")[:30]
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-    path = feedback_dir / f"fb_{safe_name}_{timestamp}.md"
-    path.write_text(feedback, encoding="utf-8")
-    return path
-
-
-def _post_ephemeral(client: WebClient, channel_id: str, user_id: str, channel: str, text: str) -> None:
+def _post_ephemeral(client: WebClient, channel_id: str, user_id: str, text: str) -> None:
     """ユーザーにのみ表示されるメッセージを送信"""
     if client and channel_id and user_id:
         try:
@@ -47,7 +35,7 @@ def _post_ephemeral(client: WebClient, channel_id: str, user_id: str, channel: s
 def _save_fb_and_master(data: CandidateData, feedback: str) -> None:
     """FBをファイル保存し、マスタに追記"""
     try:
-        _save_fb_to_file(feedback, data.candidate_name or "")
+        save_feedback_to_file(feedback, candidate_name=data.candidate_name or "")
     except Exception:
         logger.warning("FB保存に失敗", exc_info=True)
     try:
@@ -91,7 +79,7 @@ def run_fb_generation_and_post(data: CandidateData, channel_id: str, user_id: st
         logger.error("SLACK_BOT_TOKEN が設定されていないため、FB投稿できません")
         return
     client = WebClient(token=token)
-    channel = (os.environ.get("SLACK_CHANNEL") or DEFAULT_SLACK_CHANNEL).strip()
+    channel = get_slack_channel()
 
     try:
         prompt = build_prompt(data.transcript)
@@ -107,12 +95,12 @@ def run_fb_generation_and_post(data: CandidateData, channel_id: str, user_id: st
         blocks = _build_slack_blocks(header_mrkdwn, plain_text)
         client.chat_postMessage(channel=channel, text=full_text, blocks=blocks)
 
-        _post_ephemeral(client, channel_id, user_id, channel, f"FBを <#{channel}> に送信しました。チャンネルで内容をご確認ください。")
+        _post_ephemeral(client, channel_id, user_id, f"FBを <#{channel}> に送信しました。チャンネルで内容をご確認ください。")
 
         _save_fb_and_master(data, feedback)
     except Exception as e:
         logger.error("FB生成・投稿に失敗: %s", e, exc_info=True)
         try:
-            _post_ephemeral(client, channel_id, user_id, channel, "FB生成中にエラーが発生しました。ログを確認してください。")
+            _post_ephemeral(client, channel_id, user_id, "FB生成中にエラーが発生しました。ログを確認してください。")
         except Exception:
             logger.warning("エラー通知の送信にも失敗", exc_info=True)

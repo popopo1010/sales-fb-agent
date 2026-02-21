@@ -16,11 +16,13 @@ def test_slack_webhook():
 
     import urllib.request
 
-    message = """【営業FBエージェント】Slack連携テスト
+    from datetime import datetime
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    message = f"""【営業FBエージェント】Slack連携テスト
 
 ✅ このメッセージが表示されていれば、#dk_ca_初回面談fb への送信は正常に動作しています。
 
-テスト日時: 2025-02-13
+テスト日時: {now}
 """
 
     payload = json.dumps({"text": message}).encode("utf-8")

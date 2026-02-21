@@ -6,11 +6,14 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CA_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-RA_ROOT="${RA_FB_PATH:-/Users/ikeobook15/RA_FBシステム}"
+RA_ROOT="${RA_FB_PATH:-}"
+if [[ -z "$RA_ROOT" ]]; then
+  echo "環境変数 RA_FB_PATH を設定してください（例: export RA_FB_PATH=/path/to/RA_FBシステム）"
+  exit 1
+fi
 
 if [[ ! -d "$RA_ROOT" ]]; then
   echo "RA_FBシステム が見つかりません: $RA_ROOT"
-  echo "環境変数 RA_FB_PATH でパスを指定できます"
   exit 1
 fi
 

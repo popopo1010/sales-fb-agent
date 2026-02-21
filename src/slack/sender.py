@@ -1,13 +1,15 @@
 """Slack送信 - Bot API / Incoming Webhook 対応"""
 
+from __future__ import annotations
+
 import json
 import logging
 import os
 from pathlib import Path
 
-from src.config import DEFAULT_SLACK_CHANNEL
+from src.config import get_slack_channel
 from src.slack.formatting import format_feedback_to_plain
-from src.utils.loader import get_project_root
+from src.utils.loader import save_feedback_to_file
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +26,7 @@ def send_feedback(
     SLACK_WEBHOOK_URL があれば Webhook、SLACK_BOT_TOKEN があれば Bot API を使用。
     どちらもなければ save_path に保存（指定がなければ data/feedback/ に保存）。
     """
-    channel = (channel or os.environ.get("SLACK_CHANNEL") or DEFAULT_SLACK_CHANNEL).strip()
+    resolved_channel = get_slack_channel(channel)
 
     if not save_only:
         plain_text = format_feedback_to_plain(text)
@@ -36,23 +38,11 @@ def send_feedback(
         # Bot Token
         token = os.environ.get("SLACK_BOT_TOKEN")
         if token:
-            return _send_via_api(token, plain_text, channel)
+            return _send_via_api(token, plain_text, resolved_channel)
 
     # フォールバック: ファイルに保存
-    root = get_project_root()
-    if save_path is None:
-        from datetime import datetime
-
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-        save_path = root / "data" / "feedback" / f"fb_{timestamp}.md"
-    else:
-        save_path = Path(save_path)
-        if not save_path.is_absolute():
-            save_path = root / save_path
-
-    save_path.parent.mkdir(parents=True, exist_ok=True)
-    save_path.write_text(text, encoding="utf-8")
-    logger.info("Slack未設定のため、FBをファイルに保存しました: %s", save_path)
+    saved = save_feedback_to_file(text, save_path=save_path)
+    logger.info("Slack未設定のため、FBをファイルに保存しました: %s", saved)
     return True
 
 

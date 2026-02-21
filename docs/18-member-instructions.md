@@ -58,6 +58,38 @@ zip -r member-package.zip member-package
 
 ---
 
+## 既存メンバー向け：アップデート手順
+
+すでに使っているメンバーが最新版に更新する場合：
+
+```bash
+# 1. プロジェクトフォルダへ移動（まだの場合）
+cd sales-fb-agent   # または cd ~/work/sales-fb-agent 等、クローン先のパス
+
+# 2. 最新版を取得
+git pull
+
+# 3. 仮想環境を有効化（.venv がない場合は下記「仮想環境がない場合」を参照）
+source .venv/bin/activate
+
+# 4. 依存関係を更新
+pip install -r requirements.txt
+```
+
+**仮想環境の有効化**（`.venv` か `venv` のどちらかがあるはず）:
+```bash
+# .venv がある場合
+source .venv/bin/activate
+
+# venv がある場合（.venv がないとき）
+source venv/bin/activate
+```
+`ls -la` で `.venv` または `venv` フォルダがあるか確認してください。
+
+`.env` はそのままでOKです。変更があれば管理者から連絡があります。
+
+---
+
 ## メンバーへの共有用（Slackにコピペ）
 
 ```
@@ -79,6 +111,13 @@ zip -r member-package.zip member-package
 ・チャンネルで /fb と入力 → モーダルに書き起こし・候補者名（任意）・担当者名（任意）を入力
 
 ※.env の値は管理者に連絡して受け取ってください。
+
+■ 既に使っている人：アップデート手順
+  1. cd sales-fb-agent（プロジェクトのパスへ）
+  2. git pull
+  3. source .venv/bin/activate または source venv/bin/activate
+  4. pip install -r requirements.txt
+  （.env はそのままでOK）
 ```
 
 ---
@@ -159,6 +198,8 @@ python3 -m src.slack_app
 |------|------|
 | `.env` がない | 管理者に連絡して API キー・Slack の値を受け取る |
 | `ModuleNotFoundError` | `pip install -r requirements.txt` を実行 |
+| `.venv/bin/activate がない` | `source venv/bin/activate` を試す。どちらもなければ `python3 -m venv .venv` で作成 |
+| `unsupported operand type(s) for \|` | `git pull` で最新版を取得。解消しない場合は Python 3.9 以上を確認 |
 | FBが投稿されない | `.env` の値が正しいか確認。管理者に連絡 |
 | `/fb` が反応しない | ターミナルで `python -m src.slack_app` が起動しているか確認 |
 | 「Slack になかなか接続できません」 | アプリ未起動の可能性。`python -m src.slack_app` を起動してから `/fb` を実行。SLACK_APP_TOKEN が正しいか確認 |

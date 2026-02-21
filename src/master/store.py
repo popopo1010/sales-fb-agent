@@ -1,10 +1,13 @@
 """マスタデータ保存 - 候補者情報をCSVに蓄積"""
 
 import csv
+import threading
 from datetime import datetime
 from pathlib import Path
 
 from src.utils.loader import get_project_root
+
+_csv_lock = threading.Lock()
 
 
 def _get_master_path() -> Path:
@@ -32,7 +35,7 @@ def save_candidate_to_master(
         summary or "",
     ]
 
-    with open(path, "a", newline="", encoding="utf-8") as f:
+    with _csv_lock, open(path, "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         if not file_exists:
             writer.writerow(headers)

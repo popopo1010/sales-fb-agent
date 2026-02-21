@@ -1,7 +1,10 @@
 """参照ドキュメント・書き起こしの読み込みユーティリティ"""
 
+import logging
 import os
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def load_env() -> None:
@@ -13,7 +16,7 @@ def load_env() -> None:
             from dotenv import load_dotenv
             load_dotenv(env_path)
         except ImportError:
-            pass
+            logger.debug("python-dotenv 未インストール。システム環境変数を使用します。")
 
 
 def get_project_root() -> Path:

@@ -111,4 +111,8 @@ def run_fb_generation_and_post(data: CandidateData, channel_id: str, user_id: st
 
         _save_fb_and_master(data, feedback)
     except Exception as e:
-        _post_ephemeral(client, channel_id, user_id, channel, f"FB生成中にエラーが発生しました: {str(e)}")
+        logger.error("FB生成・投稿に失敗: %s", e, exc_info=True)
+        try:
+            _post_ephemeral(client, channel_id, user_id, channel, "FB生成中にエラーが発生しました。ログを確認してください。")
+        except Exception:
+            logger.warning("エラー通知の送信にも失敗", exc_info=True)

@@ -34,6 +34,41 @@ def build_prompt(
     )
 
 
+def _is_rate_limit(exc: Exception) -> bool:
+    """レート制限エラーかどうかを判定"""
+    try:
+        from openai import RateLimitError as OpenAIRateLimit
+        if isinstance(exc, OpenAIRateLimit):
+            return True
+    except ImportError:
+        pass
+    try:
+        from anthropic import RateLimitError as AnthropicRateLimit
+        if isinstance(exc, AnthropicRateLimit):
+            return True
+    except ImportError:
+        pass
+    return False
+
+
+def _is_fatal_api_error(exc: Exception) -> bool:
+    """クレジット不足・モデル未対応など回復不能なAPIエラーかどうかを判定"""
+    try:
+        from openai import APIStatusError as OpenAIStatus
+        if isinstance(exc, OpenAIStatus) and exc.status_code in (400, 404):
+            return True
+    except ImportError:
+        pass
+    try:
+        from anthropic import APIStatusError as AnthropicStatus
+        if isinstance(exc, AnthropicStatus) and exc.status_code in (400, 404):
+            return True
+    except ImportError:
+        pass
+    error_msg = str(exc).lower()
+    return "credit" in error_msg or "balance" in error_msg
+
+
 def _call_llm(prompt: str, *, max_tokens: int = 4096, temperature: float = 0.3) -> str:
     """LLM呼び出し（OpenAI/Anthropic自動選択）"""
     if os.environ.get("OPENAI_API_KEY"):
@@ -77,28 +112,22 @@ def generate_feedback(prompt: str, transcript: str = "") -> str:
             return _call_llm(prompt)
         except Exception as e:
             last_error = e
-            error_msg = str(e)
-            # 429 レート制限: 65秒待機してリトライ
-            if attempt < 2 and ("429" in error_msg or "rate_limit" in error_msg.lower()):
+            if attempt < 2 and _is_rate_limit(e):
+                logger.warning("レート制限 (attempt %d/3), 65秒待機してリトライ", attempt + 1)
                 time.sleep(65)
                 continue
-            if (
-                "credit" in error_msg.lower()
-                or "balance" in error_msg.lower()
-                or "400" in error_msg
-                or "404" in error_msg
-                or "not_found" in error_msg.lower()
-            ):
-                return _generate_fallback_feedback(transcript, error_msg)
+            if _is_fatal_api_error(e):
+                return _generate_fallback_feedback(transcript, str(e))
             raise last_error
 
 
 def _generate_fallback_feedback(transcript: str, error_reason: str = "") -> str:
     """API失敗時（クレジット不足・モデル未対応等）のフォールバックFB"""
-    return """### 全体評価：-/10点
+    reason_line = f"・ エラー詳細: {error_reason}\n" if error_reason else ""
+    return f"""### 全体評価：-/10点
 
 ・ API呼び出しに失敗したため、スコアは算出されていません
-・ クレジット・モデル設定を確認し、再実行してください
+{reason_line}・ クレジット・モデル設定を確認し、再実行してください
 
 ### 1. 良い点
 - （API利用後に再評価）

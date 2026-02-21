@@ -71,7 +71,6 @@ def _build_app() -> App:
             target=run_fb_generation_and_post,
             args=(data, channel_id, user_id),
         )
-        thread.daemon = True
         thread.start()
         logger.info("FB生成をバックグラウンドで開始しました")
 

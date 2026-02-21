@@ -5,7 +5,7 @@
 ## 起動
 
 ```bash
-cd sales-fb-agent && source .venv/bin/activate && python3 -m src.slack_app
+cd ~/work/sales-fb-agent && git pull && source .venv/bin/activate && python3 -m src.slack_app
 ```
 
 ## CLI

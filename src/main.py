@@ -6,21 +6,23 @@
 """
 
 import argparse
+import logging
 import os
+import sys
 from pathlib import Path
 
-# .env を読み込み（プロジェクトルート）
+# プロジェクトルートを sys.path に追加（直接実行時のimport解決用）
 _project_root = Path(__file__).resolve().parent.parent
-_env_path = _project_root / ".env"
-if _env_path.exists():
-    from dotenv import load_dotenv
-    load_dotenv(_env_path)
-
-import sys
-
-# プロジェクトルートをパスに追加
 if str(_project_root) not in sys.path:
     sys.path.insert(0, str(_project_root))
+
+from src.utils.loader import load_env
+load_env()
+
+from src.config import setup_logging
+setup_logging()
+
+logger = logging.getLogger(__name__)
 
 from src.agent.generator import build_prompt, generate_feedback
 from src.slack.sender import send_feedback
@@ -48,25 +50,25 @@ def run(
     try:
         transcript = load_transcript(input_path)
     except FileNotFoundError as e:
-        print(f"[ERROR] {e}", file=sys.stderr)
+        logger.error("%s", e)
         return 1
 
-    print("[INFO] プロンプト構築中...")
+    logger.info("プロンプト構築中...")
     prompt = build_prompt(transcript)
 
-    print("[INFO] FB生成中...")
+    logger.info("FB生成中...")
     try:
         feedback = generate_feedback(prompt, transcript=transcript)
     except ValueError as e:
-        print(f"[ERROR] {e}", file=sys.stderr)
-        print("\n[ヒント] .env ファイルを作成し、OPENAI_API_KEY を設定してください。", file=sys.stderr)
+        logger.error("%s", e)
+        logger.error("ヒント: .env ファイルを作成し、OPENAI_API_KEY を設定してください。")
         return 1
     except Exception as e:
-        print(f"[ERROR] LLM呼び出し失敗: {e}", file=sys.stderr)
+        logger.error("LLM呼び出し失敗: %s", e)
         return 1
 
     if "フォールバック" in feedback:
-        print("[INFO] APIクレジット不足のため、フォールバックFBで送信します。")
+        logger.info("APIクレジット不足のため、フォールバックFBで送信します。")
 
     if output_only:
         print("\n" + "=" * 60 + "\n")
@@ -78,7 +80,7 @@ def run(
         return 0
 
     if send_feedback(feedback, channel=channel):
-        print("[INFO] FBをSlackに送信しました。")
+        logger.info("FBをSlackに送信しました。")
         return 0
 
     return 1

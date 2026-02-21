@@ -4,15 +4,8 @@
 import json
 import os
 import sys
-from pathlib import Path
 
-# プロジェクトルートをパスに追加
-root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(root))
-
-# .env 読み込み
-from dotenv import load_dotenv
-load_dotenv(root / ".env")
+import bootstrap
 
 def test_slack_webhook():
     """Webhook でテストメッセージを送信"""

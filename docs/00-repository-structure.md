@@ -14,7 +14,8 @@ sales-fb-agent/
 │   ├── ...
 │   ├── 15-slack-app-install.md
 │   ├── 16-railway-deploy.md        # Railway デプロイ
-│   └── 17-github-setup.md         # GitHub 連携
+│   ├── 17-github-setup.md         # GitHub 連携
+│   └── 20-unified-launcher.md     # CA+RA FB 一括起動
 │
 ├── reference/                     # 参照ドキュメント
 │   ├── pss/                       # PSSマニュアル
@@ -46,8 +47,10 @@ sales-fb-agent/
 ├── scripts/                       # 検証・セットアップ
 │   ├── verify_slack.py            # Slack連携検証
 │   ├── diagnose_api.py            # API診断
+│   ├── bootstrap.py               # スクリプト共通セットアップ
 │   ├── run_all_tests.py           # 全検証
 │   ├── test_full_flow.py          # 一連の流れテスト
+│   ├── start_all_fb.sh            # CA+RA FB 一括起動
 │   ├── create_member_package.sh   # 管理者用：メンバー配布パッケージ作成
 │   └── setup_member.sh            # メンバー用：セットアップ
 │
@@ -74,7 +77,9 @@ sales-fb-agent/
 | `src/slack_app/` | Slack /fb スラッシュコマンド（モーダル入力→FB生成→マスタ保存） |
 | `src/agent/generator.py` | FB生成・概要生成（OpenAI/Anthropic + フォールバック） |
 | `src/slack/sender.py` | Slack送信（Webhook/Bot API） |
+| `src/slack/formatting.py` | FB本文のSlack用フォーマット変換 |
 | `src/master/store.py` | マスタ保存（候補者情報CSV追記） |
+| `src/config.py` | 共通定数（DEFAULT_SLACK_CHANNEL 等） |
 | `config/fb_format.md` | FB出力形式の単一ソース（★） |
 | `config/prompts/fb_generation.txt` | プロンプトテンプレート |
 | `config/slack-app-manifest.yaml` | Slackアプリ作成用マニフェスト |
@@ -84,8 +89,9 @@ sales-fb-agent/
 
 | 用途 | コマンド |
 |------|----------|
-| CLI（ファイル指定） | `python src/main.py data/transcripts/raw/書き起こし.txt` |
+| CLI（ファイル指定） | `python src/main.py data/transcripts/raw/書き起こし.txt` または `./run.sh` |
 | Slack /fb コマンド | `python -m src.slack_app` |
+| CA+RA 一括起動 | `./scripts/start_all_fb.sh` |
 
 ## 命名規則
 

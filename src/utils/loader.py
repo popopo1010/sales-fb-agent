@@ -4,6 +4,18 @@ import os
 from pathlib import Path
 
 
+def load_env() -> None:
+    """プロジェクトルートの .env を読み込む"""
+    root = get_project_root()
+    env_path = root / ".env"
+    if env_path.exists():
+        try:
+            from dotenv import load_dotenv
+            load_dotenv(env_path)
+        except ImportError:
+            pass
+
+
 def get_project_root() -> Path:
     """プロジェクトルート（sales-fb-agent/）を取得"""
     return Path(__file__).resolve().parent.parent.parent

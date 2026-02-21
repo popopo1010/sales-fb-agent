@@ -4,15 +4,10 @@
 ※ LLM API のクレジット不足時は、サンプルFBを送信してSlack連携を確認します。
 """
 
-import os
 import sys
-from pathlib import Path
 
-root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(root))
-
-from dotenv import load_dotenv
-load_dotenv(root / ".env")
+import bootstrap
+root = bootstrap._ROOT
 
 from src.utils.loader import load_transcript
 from src.slack.sender import send_feedback

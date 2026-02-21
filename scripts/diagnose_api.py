@@ -6,13 +6,8 @@ Anthropic API 診断スクリプト
 
 import os
 import sys
-from pathlib import Path
 
-root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(root))
-
-from dotenv import load_dotenv
-load_dotenv(root / ".env")
+import bootstrap
 
 
 def main():

@@ -7,7 +7,7 @@
 ```bash
 cd sales-fb-agent
 source .venv/bin/activate
-python src/main.py data/transcripts/raw/書き起こし.txt
+./run.sh data/transcripts/raw/書き起こし.txt   # または python src/main.py ...
 ```
 
 ## どこに何を置くか
@@ -85,10 +85,17 @@ sales-fb-agent/
 各自のPCで以下を実行すると、Slack の `/fb` が使えます。
 
 ```bash
-python -m src.slack_app
+cd ~/work/sales-fb-agent   # プロジェクトのパス（環境により異なります）
+git pull
+source .venv/bin/activate
+python3 -m src.slack_app
 ```
 
-起動後、任意のチャンネルで `/fb` と入力するとモーダルが開きます。候補者名（任意）と書き起こしを入力して送信すると、**担当者へのメンション＋候補者名**付きで #dk_ca_初回面談fb にFBが投稿されます。
+※ プロジェクトを別の場所にクローンした場合は、そのパスに `cd` してください。
+
+起動後、任意のチャンネルで `/fb` と入力するとモーダルが開きます。書き起こし・候補者名（任意）・担当者名（任意）を入力して送信すると、**担当者へのメンション＋候補者名**付きで #dk_ca_初回面談fb にFBが投稿されます。
+
+**CA + RA FB を両方使う場合**: `./scripts/start_all_fb.sh` で一括起動できます。→ [一括起動ガイド](docs/20-unified-launcher.md)
 
 > メンバーへの共有方法は [メンバー向け指示書](docs/18-member-instructions.md) を参照。常時稼働させたい場合は [Railway デプロイ](docs/16-railway-deploy.md) も選択肢。
 

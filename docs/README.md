@@ -8,6 +8,7 @@
 | [14-member-quickstart.md](14-member-quickstart.md) | **メンバー向け**：/fb の使い方（シェア用） |
 | [13-slack-deployment-guide.md](13-slack-deployment-guide.md) | **管理者向け**：Slack連携（/fb 全員利用） |
 | [16-railway-deploy.md](16-railway-deploy.md) | **管理者向け**：Railway デプロイ（push で自動デプロイ） |
+| [20-unified-launcher.md](20-unified-launcher.md) | **CA+RA**：両方のFBシステムを1コマンドで起動 |
 
 ## 概要・設計
 
@@ -47,4 +48,4 @@
 | **config/fb_format.md** | FB出力形式の唯一の定義（プロンプト・フォールバックはすべてここを参照） |
 | reference/operations/operation-manual.md | OPSマニュアル（ヒアリング・心理学・3-2bis評価・転職ニーズ優先順位） |
 | reference/operations/salary-market.md | 年収相場データ |
-| data/master/candidates.csv | 候補者マスタ（/fb で自動追記：候補者・CA担当者・概要・資格等） |
+| data/master/candidates.csv | 候補者マスタ（/fb で自動追記：候補者・担当者・概要） |

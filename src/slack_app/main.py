@@ -1,19 +1,24 @@
 """Slack Bolt アプリのエントリポイント"""
 
 import json
+import logging
 import os
 import sys
 import threading
 from pathlib import Path
 
+# プロジェクトルートを sys.path に追加（直接実行時のimport解決用）
 _project_root = Path(__file__).resolve().parent.parent.parent
 if str(_project_root) not in sys.path:
     sys.path.insert(0, str(_project_root))
 
-_env_path = _project_root / ".env"
-if _env_path.exists():
-    from dotenv import load_dotenv
-    load_dotenv(_env_path)
+from src.utils.loader import load_env
+load_env()
+
+from src.config import setup_logging
+setup_logging()
+
+logger = logging.getLogger(__name__)
 
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
@@ -76,21 +81,20 @@ def _build_app() -> App:
 def main() -> None:
     app_token = os.environ.get("SLACK_APP_TOKEN")
     if not app_token:
-        print(
-            "[ERROR] SLACK_APP_TOKEN (xapp-...) が設定されていません。\n"
+        logger.error(
+            "SLACK_APP_TOKEN (xapp-...) が設定されていません。\n"
             "Socket Mode を使うには api.slack.com でアプリを作成し、"
             "Socket Mode を有効にして App-Level Token を取得してください。\n"
-            "手順は docs/13-slack-deployment-guide.md を参照してください。",
-            file=sys.stderr,
+            "手順は docs/13-slack-deployment-guide.md を参照してください。"
         )
         sys.exit(1)
 
     try:
         app = _build_app()
     except ValueError as e:
-        print(f"[ERROR] {e}", file=sys.stderr)
+        logger.error("%s", e)
         sys.exit(1)
 
     handler = SocketModeHandler(app, app_token)
-    print("[INFO] Slack アプリを起動しました。チャンネルで /fb を試してください。")
+    logger.info("Slack アプリを起動しました。チャンネルで /fb を試してください。")
     handler.start()

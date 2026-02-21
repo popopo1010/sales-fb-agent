@@ -13,13 +13,8 @@ Slack連携の動作検証スクリプト
 import json
 import os
 import sys
-from pathlib import Path
 
-root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(root))
-
-from dotenv import load_dotenv
-load_dotenv(root / ".env")
+import bootstrap
 
 
 def main():

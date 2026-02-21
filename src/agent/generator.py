@@ -1,10 +1,13 @@
 """FB生成エージェント - プロンプト構築・LLM連携"""
 
+import logging
 import os
 import time
-from pathlib import Path
 
+from src.config import DEFAULT_ANTHROPIC_MODEL, DEFAULT_OPENAI_MODEL
 from src.utils.loader import get_project_root, load_reference_docs
+
+logger = logging.getLogger(__name__)
 
 
 def build_prompt(
@@ -31,20 +34,43 @@ def build_prompt(
     )
 
 
+def _call_llm(prompt: str, *, max_tokens: int = 4096, temperature: float = 0.3) -> str:
+    """LLM呼び出し（OpenAI/Anthropic自動選択）"""
+    if os.environ.get("OPENAI_API_KEY"):
+        from openai import OpenAI
+
+        client = OpenAI()
+        response = client.chat.completions.create(
+            model=os.environ.get("OPENAI_MODEL", DEFAULT_OPENAI_MODEL),
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+        return (response.choices[0].message.content or "").strip()
+
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        from anthropic import Anthropic
+
+        client = Anthropic()
+        response = client.messages.create(
+            model=os.environ.get("ANTHROPIC_MODEL", DEFAULT_ANTHROPIC_MODEL),
+            max_tokens=max_tokens,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return (response.content[0].text or "").strip()
+
+    raise ValueError(
+        "OPENAI_API_KEY または ANTHROPIC_API_KEY を環境変数に設定してください。"
+    )
+
+
 def generate_feedback(prompt: str, transcript: str = "") -> str:
     """LLMを使ってFBを生成（OpenAI / Anthropic 対応）。
     API失敗時はフォールバックFBを返す。429レート制限時は待機してリトライ。"""
     last_error = None
     for attempt in range(3):  # 初回 + リトライ2回
         try:
-            if os.environ.get("OPENAI_API_KEY"):
-                return _generate_openai(prompt)
-            if os.environ.get("ANTHROPIC_API_KEY"):
-                return _generate_anthropic(prompt)
-
-            raise ValueError(
-                "OPENAI_API_KEY または ANTHROPIC_API_KEY を環境変数に設定してください。"
-            )
+            return _call_llm(prompt)
         except Exception as e:
             last_error = e
             error_msg = str(e)
@@ -112,63 +138,19 @@ def _generate_fallback_feedback(transcript: str, error_reason: str = "") -> str:
 """
 
 
-def _generate_openai(prompt: str) -> str:
-    """OpenAI API でFB生成"""
-    from openai import OpenAI
-
-    client = OpenAI()
-    response = client.chat.completions.create(
-        model=os.environ.get("OPENAI_MODEL", "gpt-4o"),
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
-    )
-    return response.choices[0].message.content
-
-
-def _generate_anthropic(prompt: str) -> str:
-    """Anthropic API でFB生成"""
-    from anthropic import Anthropic
-
-    client = Anthropic()
-    response = client.messages.create(
-        model=os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
-        max_tokens=4096,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return response.content[0].text
-
-
 def generate_transcript_summary(transcript: str) -> str:
     """書き起こしからトーク内容の概要を生成（マスタ用）。
     API失敗時は空文字を返す。"""
     if not transcript or len(transcript.strip()) < 50:
         return ""
-    prompt = """以下の初回面談の書き起こしを、200〜400文字で概要にまとめてください。
-候補者のニーズ、転職理由・背景、意思決定のポイントを整理して記載してください。
-
-【書き起こし】
-"""
+    prompt = (
+        "以下の初回面談の書き起こしを、200〜400文字で概要にまとめてください。\n"
+        "候補者のニーズ、転職理由・背景、意思決定のポイントを整理して記載してください。\n\n"
+        "【書き起こし】\n"
+    )
     prompt += transcript[:8000]  # 長い場合は先頭を優先
     try:
-        if os.environ.get("OPENAI_API_KEY"):
-            from openai import OpenAI
-            client = OpenAI()
-            r = client.chat.completions.create(
-                model=os.environ.get("OPENAI_MODEL", "gpt-4o"),
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.3,
-                max_tokens=500,
-            )
-            return (r.choices[0].message.content or "").strip()
-        if os.environ.get("ANTHROPIC_API_KEY"):
-            from anthropic import Anthropic
-            client = Anthropic()
-            r = client.messages.create(
-                model=os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
-                max_tokens=500,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            return (r.content[0].text or "").strip()
+        return _call_llm(prompt, max_tokens=500)
     except Exception:
-        pass
-    return ""
+        logger.warning("概要生成に失敗", exc_info=True)
+        return ""

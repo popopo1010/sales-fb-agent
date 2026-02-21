@@ -76,7 +76,7 @@ zip -r member-package.zip member-package
 
 ■ 使い方（Slack /fb コマンド）
 ・ターミナルで python -m src.slack_app を起動しておく
-・チャンネルで /fb と入力 → モーダルに書き起こしを入力
+・チャンネルで /fb と入力 → モーダルに書き起こし・候補者名（任意）・担当者名（任意）を入力
 
 ※.env の値は管理者に連絡して受け取ってください。
 ```
@@ -129,12 +129,12 @@ FB が #dk_ca_初回面談fb に自動投稿されます。
 Slack の `/fb` を使う場合、**自分のPCでアプリを起動**しておく必要があります。
 
 ```bash
-cd sales-fb-agent
+cd sales-fb-agent   # または cd ~/work/sales-fb-agent 等、クローン先のパス
 source .venv/bin/activate
-python -m src.slack_app
+python3 -m src.slack_app
 ```
 
-起動後、任意のチャンネルで `/fb` と入力するとモーダルが開きます。候補者名（任意）と書き起こしを入力して送信すると、#dk_ca_初回面談fb にFBが投稿されます。
+起動後、任意のチャンネルで `/fb` と入力するとモーダルが開きます。書き起こし・候補者名（任意）・担当者名（任意）を入力して送信すると、#dk_ca_初回面談fb にFBが投稿されます。
 
 > ターミナルを閉じると `/fb` は使えなくなります。使うときだけ起動してください。
 

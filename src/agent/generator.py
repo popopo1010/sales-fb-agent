@@ -46,7 +46,9 @@ def _call_llm(prompt: str, *, max_tokens: int = 4096, temperature: float = 0.3) 
             temperature=temperature,
             max_tokens=max_tokens,
         )
-        return (response.choices[0].message.content or "").strip()
+        if not response.choices or not response.choices[0].message.content:
+            raise ValueError("OpenAI APIから空のレスポンスが返されました")
+        return response.choices[0].message.content.strip()
 
     if os.environ.get("ANTHROPIC_API_KEY"):
         from anthropic import Anthropic
@@ -57,7 +59,9 @@ def _call_llm(prompt: str, *, max_tokens: int = 4096, temperature: float = 0.3) 
             max_tokens=max_tokens,
             messages=[{"role": "user", "content": prompt}],
         )
-        return (response.content[0].text or "").strip()
+        if not response.content or not response.content[0].text:
+            raise ValueError("Anthropic APIから空のレスポンスが返されました")
+        return response.content[0].text.strip()
 
     raise ValueError(
         "OPENAI_API_KEY または ANTHROPIC_API_KEY を環境変数に設定してください。"

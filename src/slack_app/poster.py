@@ -87,6 +87,9 @@ def run_fb_generation_and_post(data: CandidateData, channel_id: str, user_id: st
     from src.agent.generator import build_prompt, generate_feedback
 
     token = os.environ.get("SLACK_BOT_TOKEN")
+    if not token:
+        logger.error("SLACK_BOT_TOKEN が設定されていないため、FB投稿できません")
+        return
     client = WebClient(token=token)
     channel = (os.environ.get("SLACK_CHANNEL") or DEFAULT_SLACK_CHANNEL).strip()
 

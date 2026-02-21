@@ -5,13 +5,12 @@
 初回面談の書き起こしからFBを生成し、Slack #dk_ca_初回面談fb に送信する。
 """
 
-from __future__ import annotations
-
 import argparse
 import logging
 import os
 import sys
 from pathlib import Path
+from typing import Optional
 
 # プロジェクトルートを sys.path に追加（直接実行時のimport解決用）
 _project_root = Path(__file__).resolve().parent.parent
@@ -33,7 +32,7 @@ from src.utils.loader import load_transcript
 
 def run(
     input_path: str,
-    channel: str | None = None,
+    channel: Optional[str] = None,
     output_only: bool = False,
     no_slack: bool = False,
 ) -> int:

@@ -1,7 +1,5 @@
 """Slack /fb モーダルのブロック定義とパース"""
 
-from __future__ import annotations
-
 from .models import CandidateData
 
 

@@ -1,12 +1,11 @@
 """参照ドキュメント・書き起こしの読み込みユーティリティ"""
 
-from __future__ import annotations
-
 import logging
 import os
 import re
 from datetime import datetime
 from pathlib import Path
+from typing import Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +27,7 @@ def get_project_root() -> Path:
     return Path(__file__).resolve().parent.parent.parent
 
 
-def load_reference_docs(base_path: str | Path) -> str:
+def load_reference_docs(base_path: Union[str, Path]) -> str:
     """参照ドキュメント（.md, .txt）を再帰的に読み込み、結合して返す"""
     root = get_project_root()
     path = root / base_path if not isinstance(base_path, Path) else base_path
@@ -52,7 +51,7 @@ def load_reference_docs(base_path: str | Path) -> str:
     return "\n\n".join(content)
 
 
-def load_transcript(file_path: str | Path) -> str:
+def load_transcript(file_path: Union[str, Path]) -> str:
     """書き起こしファイルを読み込む"""
     path = Path(file_path)
     if not path.is_absolute():
@@ -67,7 +66,7 @@ def load_transcript(file_path: str | Path) -> str:
 def save_feedback_to_file(
     feedback: str,
     candidate_name: str = "",
-    save_path: str | Path | None = None,
+    save_path: Optional[Union[str, Path]] = None,
 ) -> Path:
     """FBを data/feedback/ に保存。candidate_name があればファイル名に含める。"""
     root = get_project_root()

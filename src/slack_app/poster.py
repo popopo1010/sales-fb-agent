@@ -1,7 +1,5 @@
 """FB生成・Slack投稿・マスタ保存"""
 
-from __future__ import annotations
-
 import logging
 import os
 import re

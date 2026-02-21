@@ -1,11 +1,10 @@
 """Slack送信 - Bot API / Incoming Webhook 対応"""
 
-from __future__ import annotations
-
 import json
 import logging
 import os
 from pathlib import Path
+from typing import Optional, Union
 
 from src.config import get_slack_channel
 from src.slack.formatting import format_feedback_to_plain
@@ -16,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 def send_feedback(
     text: str,
-    channel: str | None = None,
-    save_path: str | Path | None = None,
+    channel: Optional[str] = None,
+    save_path: Optional[Union[str, Path]] = None,
     save_only: bool = False,
 ) -> bool:
     """

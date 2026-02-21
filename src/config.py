@@ -1,15 +1,14 @@
 """共通設定定数"""
 
-from __future__ import annotations
-
 import logging
 import os
+from typing import Optional
 
 # Slack デフォルトチャンネル（#dk_ca_初回面談fb）
 DEFAULT_SLACK_CHANNEL = "C0AELMP88Q6"
 
 
-def get_slack_channel(override: str | None = None) -> str:
+def get_slack_channel(override: Optional[str] = None) -> str:
     """Slackチャンネルを解決: 引数 > 環境変数 > デフォルト"""
     return (override or os.environ.get("SLACK_CHANNEL") or DEFAULT_SLACK_CHANNEL).strip()
 
